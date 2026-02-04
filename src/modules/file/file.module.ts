@@ -6,22 +6,11 @@ import { FileService } from './file.service';
 import { OssService } from './oss.service';
 import { FileController } from './file.controller';
 import { ConfigModule } from '@/config/config.module';
-import { ConfigService } from '@/config/config.service';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([File, User]),
-    ConfigModule,
-  ],
+  imports: [TypeOrmModule.forFeature([File, User]), ConfigModule],
   controllers: [FileController],
-  providers: [
-    FileService,
-    OssService,
-    {
-      provide: ConfigService,
-      useFactory: () => new ConfigService(),
-    },
-  ],
+  providers: [FileService, OssService],
   exports: [FileService, OssService],
 })
 export class FileModule {}

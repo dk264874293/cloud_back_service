@@ -2,11 +2,10 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { SwaggerModule } from '@nestjs/swagger';
 import { CacheModule } from '@nestjs/cache-manager';
+import { ConfigService, ConfigModule } from '@nestjs/config';
 import * as redisStore from 'cache-manager-redis-store';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { ConfigModule } from './config/config.module';
-import { redisConfig } from './config/redis.config';
 import { typeOrmConfig } from './config/typeorm.config';
 import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
@@ -28,14 +27,16 @@ import { AdminModule } from './modules/admin/admin.module';
     TypeOrmModule.forRoot(typeOrmConfig),
     CacheModule.registerAsync({
       imports: [ConfigModule],
-      useFactory: async (configService: any) => ({
+      isGlobal: true,
+      useFactory: async (configService: ConfigService) => ({
         store: redisStore,
-        host: configService.REDIS.host,
-        port: configService.REDIS.port,
-        password: configService.REDIS.password,
-        db: configService.REDIS.db,
+        host: configService.get<string>('REDIS_HOST') || 'localhost',
+        port: configService.get<number>('REDIS_PORT') || 6379,
+        password: configService.get<string>('REDIS_PASSWORD'),
+        db: configService.get<number>('REDIS_DB') || 0,
+        ttl: configService.get<number>('REDIS_TTL') || 300,
       }),
-      inject: [redisConfig.KEY],
+      inject: [ConfigService],
     }),
     AuthModule,
     UserModule,
@@ -48,6 +49,7 @@ import { AdminModule } from './modules/admin/admin.module';
     ServiceProviderModule,
     BankModule,
     WithdrawalModule,
+    AdminModule,
   ],
   controllers: [AppController],
   providers: [AppService],
