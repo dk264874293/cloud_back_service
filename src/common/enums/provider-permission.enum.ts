@@ -1,0 +1,5 @@
+export enum ProviderPermission {
+  ACCOUNT_MANAGER = 'ACCOUNT_MANAGER',
+  INTERVIEWER = 'INTERVIEWER',
+  HANDLER = 'HANDLER',
+}
